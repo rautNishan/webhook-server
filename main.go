@@ -2,17 +2,33 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Hello World")
-	})
-	server("localhost", "3000")
+type RegisterWebHookBody struct {
+	URL string `json:"url"`
 }
 
-func server(addr string, port string) {
-	log.Fatal(http.ListenAndServe(addr+":"+port, nil))
+// This function returns id that is needed to be passed while creating a task
+func RegisterWebHook(c *gin.Context) {
+	var req RegisterWebHookBody
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	fmt.Println("Received URL:", req.URL)
+
+	c.JSON(200, gin.H{
+		"id": 1,
+	})
+}
+
+func main() {
+	router := gin.Default()
+
+	router.POST("/registerwebhook", RegisterWebHook)
+
+	router.Run()
 }
