@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rautNishan/webhook-server.git/db"
 )
 
 type RegisterWebHookBody struct {
 	URL string `json:"url"`
 }
 
-// This function returns id that is needed to be passed while creating a task
+// This function returns a secret key
 func RegisterWebHook(c *gin.Context) {
 	var req RegisterWebHookBody
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -21,14 +23,15 @@ func RegisterWebHook(c *gin.Context) {
 	fmt.Println("Received URL:", req.URL)
 
 	c.JSON(200, gin.H{
-		"id": 1,
+		"secret_id": "time_random_string",
 	})
 }
 
 func main() {
 	router := gin.Default()
-
+	if err := db.InitDB(); err != nil {
+		log.Fatal(err)
+	}
 	router.POST("/registerwebhook", RegisterWebHook)
-
 	router.Run()
 }
